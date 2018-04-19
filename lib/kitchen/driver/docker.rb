@@ -58,6 +58,7 @@ module Kitchen
       default_config :build_options, nil
       default_config :run_options,   nil
       default_config :build_tempdir, Dir.pwd
+      default_config :pre_create_command, nil
 
       default_config :use_sudo do |driver|
         !driver.remote_socket?
@@ -360,9 +361,19 @@ module Kitchen
       end
 
       def run_container(state)
+        run_pre_create_command
         cmd = build_run_command(state[:image_id])
         output = docker_command(cmd)
         parse_container_id(output)
+      end
+
+      def run_pre_create_command
+        pre_create_command = config[:pre_create_command]
+
+        return unless pre_create_command && pre_create_command.is_a?(String)
+
+        logger.info " ---> running pre_create_command:\n#{pre_create_command}"
+        system pre_create_command
       end
 
       def container_exists?(state)
