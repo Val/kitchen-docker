@@ -483,6 +483,16 @@ Examples:
     net: br3
 ```
 
+### build_tempdir
+
+Relative (to `build_context`) temporary directory path for builded Dockerfile.
+
+Example:
+
+```yaml
+  build_tempdir: .kitchen
+```
+
 ## Development
 
 * Source hosted at [GitHub][repo]

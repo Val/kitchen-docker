@@ -21,6 +21,7 @@ require 'uri'
 require 'net/ssh'
 require 'tempfile'
 require 'shellwords'
+require 'pathname'
 
 require 'kitchen/driver/base'
 
@@ -56,6 +57,7 @@ module Kitchen
       default_config :public_key,    File.join(Dir.pwd, '.kitchen', 'docker_id_rsa.pub')
       default_config :build_options, nil
       default_config :run_options,   nil
+      default_config :build_tempdir, Dir.pwd
 
       default_config :use_sudo do |driver|
         !driver.remote_socket?
@@ -310,7 +312,7 @@ module Kitchen
         cmd << " #{extra_build_options}" unless extra_build_options.empty?
         dockerfile_contents = dockerfile
         build_context = config[:build_context] ? '.' : '-'
-        file = Tempfile.new('Dockerfile-kitchen', Dir.pwd)
+        file = Tempfile.new('Dockerfile-kitchen', Pathname.pwd + config[:build_tempdir])
         output = begin
           file.write(dockerfile)
           file.close
