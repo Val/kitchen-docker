@@ -205,6 +205,16 @@ destroyed.
 
 The default value is `false`.
 
+### rm\_force
+
+Use `--force` when removing container if not false (default)
+
+Examples:
+
+```yaml
+  rm_force: true
+```
+
 ### run\_command
 
 Sets the command used to run the suite container.
