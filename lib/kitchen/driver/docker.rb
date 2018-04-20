@@ -59,6 +59,7 @@ module Kitchen
       default_config :run_options,   nil
       default_config :build_tempdir, Dir.pwd
       default_config :pre_create_command, nil
+      default_config :rm_force,      false
 
       default_config :use_sudo do |driver|
         !driver.remote_socket?
@@ -403,7 +404,8 @@ module Kitchen
       def rm_container(state)
         container_id = state[:container_id]
         docker_command("stop -t 0 #{container_id}")
-        docker_command("rm #{container_id}")
+        cmd = config[:rm_force] ? "rm -f #{container_id}" : "rm #{container_id}"
+        docker_command(cmd)
       end
 
       def rm_image(state)
