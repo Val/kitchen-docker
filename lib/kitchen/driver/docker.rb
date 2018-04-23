@@ -60,6 +60,7 @@ module Kitchen
       default_config :build_tempdir, Dir.pwd
       default_config :pre_create_command, nil
       default_config :rm_force,      false
+      default_config :docker_timeout, (ENV['DOCKER_TIMEOUT'] || 30).to_i
 
       default_config :use_sudo do |driver|
         !driver.remote_socket?
@@ -403,7 +404,7 @@ module Kitchen
 
       def rm_container(state)
         container_id = state[:container_id]
-        docker_command("stop -t 0 #{container_id}")
+        docker_command_with_timeout("stop -t 0 #{container_id}", "kill #{container_id}")
         cmd = config[:rm_force] ? "rm -f #{container_id}" : "rm #{container_id}"
         docker_command(cmd)
       end
@@ -436,6 +437,14 @@ module Kitchen
         config[:build_context] ? Pathname.new(file.path).relative_path_from(Pathname.pwd).to_s : file.path
       end
 
+      def docker_command_with_timeout(cmd, alt_cmd)
+        pid = Process.fork { docker_command(cmd) }
+
+        Timeout.timeout(config[:docker_timeout]) { Process.wait(pid) }
+      rescue Timeout::Error
+        Process.kill('TERM', pid)
+        docker_command(alt_cmd)
+      end
     end
   end
 end
