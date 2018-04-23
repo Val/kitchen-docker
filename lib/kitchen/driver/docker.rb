@@ -457,13 +457,23 @@ module Kitchen
         config[:build_context] ? Pathname.new(file.path).relative_path_from(Pathname.pwd).to_s : file.path
       end
 
+      HR = <<HORIZONTAL_LINE
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+HORIZONTAL_LINE
+
       def docker_command_with_timeout(cmd, alt_cmd)
+        STDERR.puts HR
+        STDERR.puts "cmd = docker #{cmd}"
         pid = Process.fork { docker_command(cmd) }
 
         Timeout.timeout(config[:docker_timeout]) { Process.wait(pid) }
+        STDERR.puts HR
       rescue Timeout::Error
         Process.kill('TERM', pid)
+
+        STDERR.puts "alt_cmd = docker #{alt_cmd}"
         docker_command(alt_cmd)
+        STDERR.puts HR
       end
     end
   end
