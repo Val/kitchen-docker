@@ -161,6 +161,12 @@ working upstart.
 
 The default value is `true`.
 
+### docker\_timeout
+
+Set docker command timeout before breaking stop command and killing container.
+
+The default value is 30s, can be overrident by setting `DOCKER_TIMEOUT`.
+
 ### provision\_command
 
 Custom command(s) to be run when provisioning the base for the suite containers.
